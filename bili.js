@@ -3,7 +3,7 @@
 // @namespace    http://tampermonkey.net/
 // @version      0.1
 // @description  try to take over the world!
-// @author       feliks
+// @author       felikschen
 // @match        https://*.bilibili.com/video/*
 // @icon         https://www.felikschen.xyz/Personal/static/friends/Zmiemie/favicon.ico
 // @grant        none
@@ -35,16 +35,25 @@
   controlContainer.style.left = "25px";
   controlContainer.style.top = "100px";
   controlContainer.style.zIndex = "9999";
-  controlContainer.style.padding = "15px";
+  controlContainer.style.padding = "10px";
   controlContainer.style.background = "#000";
   controlContainer.style.borderRadius = "10px";
+  controlContainer.style.display = "flex";
+  controlContainer.style.flexDirection = "column";
+
+  var p = document.createElement("p");
+  p.innerText = "长按加速，短按切换";
+  p.style.color = "#fff";
+  p.style.margin = "0";
+  p.style.marginBottom = "5px";
+  controlContainer.appendChild(p);
 
   // 遍历播放速度数组，并为每个速度创建一个按钮
   for (var i = 0; i < playbackRates.length; i++) {
     // 创建按钮元素
     var buttonElement = document.createElement("button");
     buttonElement.innerText = "x" + playbackRates[i];
-    buttonElement.style.marginRight = "5px";
+    buttonElement.style.margin = "5px";
     buttonElement.style.width = "40px";
     buttonElement.style.height = "25px";
     buttonElement.style.borderRadius = "5px";
@@ -62,11 +71,16 @@
     // 添加到父容器
     controlContainer.appendChild(buttonElement);
   }
-
   // 添加到页面
   document.body.appendChild(controlContainer);
+
   // 监听键盘事件
+  var count = 0;
   document.addEventListener("keydown", function (event) {
+    //按下count++,用于判断长按和短按
+    count++;
+    localStorage.setItem('count', count);
+    console.log(count)
     // 判断按下的是否为数字键
     if (event.keyCode >= 48 && event.keyCode <= 57) {
       // 获取按下的数字
@@ -91,12 +105,14 @@
   });
   // 键盘
   document.addEventListener("keyup", function (event) {
-    // 判断是否松开数字键
-    if (event.keyCode >= 48 && event.keyCode <= 57) { // keyCode 48-57 对应数字键0-9
-      // 停止计时器
-      clearInterval(timer);
-      // 暂停视频播放
-      videoElements[0].pause();
+    //count=1,短按-->松开设置倍速；count>1,长按-->松开暂停
+    if (count == 1) {
+      videoElements[0].playbackRate = currentSpeed;
+    } else {
+      videoElements[0].pause()
+      count = 0
     }
+    //松开重置count
+    count = 0
   });
 })();
