@@ -3,7 +3,7 @@
 // @namespace    http://tampermonkey.net/
 // @version      0.1
 // @description  try to take over the world!
-// @author       author
+// @author       feliks
 // @match        https://*.bilibili.com/video/*
 // @icon         https://www.felikschen.xyz/Personal/static/friends/Zmiemie/favicon.ico
 // @grant        none
