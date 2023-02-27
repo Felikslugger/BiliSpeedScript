@@ -1,9 +1,9 @@
 // ==UserScript==
 // @name         bilibili
 // @namespace    http://tampermonkey.net/
-// @version      0.1
+// @version      0.3
 // @description  try to take over the world!
-// @author       felikschen
+// @author       feliks
 // @match        https://*.bilibili.com/video/*
 // @icon         https://www.felikschen.xyz/Personal/static/friends/Zmiemie/favicon.ico
 // @grant        none
@@ -22,7 +22,7 @@
     }
   }
   // 定义不同的播放速度
-  var playbackRates = [1, 1.25, 1.5, 1.75, 2, 3, 4, 5, 6];
+  var playbackRates = [1, 1.25, 1.5, 1.75, 2, 3, 4, 5, 10];
   var currentSpeed = 1;
   var timer = null;
 
@@ -35,7 +35,7 @@
   controlContainer.style.left = "25px";
   controlContainer.style.top = "100px";
   controlContainer.style.zIndex = "9999";
-  controlContainer.style.padding = "10px";
+  controlContainer.style.padding = "10px 0";
   controlContainer.style.background = "#000";
   controlContainer.style.borderRadius = "10px";
   controlContainer.style.display = "flex";
@@ -45,7 +45,7 @@
   p.innerText = "长按加速，短按切换";
   p.style.color = "#fff";
   p.style.margin = "0";
-  p.style.marginBottom = "5px";
+  p.style.transform = "scale(0.66)";
   controlContainer.appendChild(p);
 
   // 遍历播放速度数组，并为每个速度创建一个按钮
@@ -53,7 +53,7 @@
     // 创建按钮元素
     var buttonElement = document.createElement("button");
     buttonElement.innerText = "x" + playbackRates[i];
-    buttonElement.style.margin = "5px";
+    buttonElement.style.margin = "5px auto";
     buttonElement.style.width = "40px";
     buttonElement.style.height = "25px";
     buttonElement.style.borderRadius = "5px";
@@ -73,6 +73,21 @@
   }
   // 添加到页面
   document.body.appendChild(controlContainer);
+
+  //获取controlContainer的高度
+    var divHeight = controlContainer.offsetHeight;
+    console.log('高度', divHeight);
+    var span = document.createElement("span");
+    span.innerText = ">";
+    span.fontSize = "12px";
+    span.style.display = 'none';
+    span.style.color = "#fff";
+    span.style.position = "absolute";
+    span.style.right = "5px";
+    span.style.height = divHeight + "px";
+    span.style.lineHeight = divHeight + "px";
+    controlContainer.appendChild(span);
+
 
   // 监听键盘事件
   var count = 0;
@@ -115,4 +130,53 @@
     //松开重置count
     count = 0
   });
+
+
+    //拖动
+    //拖动控制按钮
+    var drag = false;
+    var x, y;
+    controlContainer.addEventListener('mousedown', function (e) {
+      e.preventDefault();
+      drag = true;
+      x = e.clientX - controlContainer.offsetLeft;
+      y = e.clientY - controlContainer.offsetTop;
+    });
+    document.addEventListener('mousemove', function (e) {
+      if (drag) {
+        controlContainer.style.left = e.clientX - x + 'px';
+        controlContainer.style.top = e.clientY - y + 'px';
+        getRight();
+      }
+    });
+    document.addEventListener('mouseup', function (e) {
+      drag = false;
+    });
+
+
+    function getRight() {
+      //判断controlContainer是否超出左边界
+      if (controlContainer.offsetLeft < -80) {
+        span.style.display = 'block';
+        console.log('超出左边界', controlContainer.offsetLeft);
+      }else{
+        span.style.display = 'none';
+      }
+    }
+
+    //设置hover事件
+    controlContainer.addEventListener('mouseover', function () {
+      controlContainer.style.cursor = 'pointer';
+    });
+
+    //点击恢复
+    span.addEventListener('click', function () {
+      var timer = setInterval(function () {
+        controlContainer.style.left = controlContainer.offsetLeft + 4 + 'px';
+        if (controlContainer.offsetLeft >= 25) {
+          clearInterval(timer);
+          span.style.display = 'none';
+        }
+      }, 1);
+    });
 })();
